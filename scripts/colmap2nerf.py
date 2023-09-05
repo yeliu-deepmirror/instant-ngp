@@ -36,6 +36,8 @@ def parse_args():
 	parser.add_argument("--colmap_camera_model", default="OPENCV", choices=["SIMPLE_PINHOLE", "PINHOLE", "SIMPLE_RADIAL", "RADIAL", "OPENCV", "SIMPLE_RADIAL_FISHEYE", "RADIAL_FISHEYE", "OPENCV_FISHEYE"], help="Camera model")
 	parser.add_argument("--colmap_camera_params", default="", help="Intrinsic parameters, depending on the chosen model. Format: fx,fy,cx,cy,dist")
 	parser.add_argument("--images", default="images", help="Input path to the images.")
+	parser.add_argument("--colmap_subsample", default=1, help="subsample the colmap result images")
+	parser.add_argument("--resize_image", default=1.0, help="whether to resize the image")
 	parser.add_argument("--text", default="colmap_text", help="Input path to the colmap text files (set automatically if --run_colmap is used).")
 	parser.add_argument("--aabb_scale", default=32, choices=["1", "2", "4", "8", "16", "32", "64", "128"], help="Large scene scale factor. 1=scene fits in unit cube; power of 2 up to 128")
 	parser.add_argument("--skip_early", default=0, help="Skip this many images from the start.")
@@ -148,6 +150,16 @@ def sharpness(imagePath):
 	fm = variance_of_laplacian(gray)
 	return fm
 
+def resize_image(imagePath, new_path, ratio):
+	image = cv2.imread(imagePath)
+	new_height = int(image.shape[0] * ratio)
+	new_width = int(image.shape[1] * ratio)
+	image = cv2.resize(image, dsize=(new_width, new_height))
+
+	os.makedirs(os.path.dirname(new_path), exist_ok=True)
+	cv2.imwrite(new_path, image)
+
+
 def qvec2rotmat(qvec):
 	return np.array([
 		[
@@ -201,6 +213,11 @@ if __name__ == "__main__":
 	IMAGE_FOLDER = args.images
 	TEXT_FOLDER = args.text
 	OUT_PATH = args.out
+	COLMAP_SUBSAMPLE = int(args.colmap_subsample)
+	RESIZE_IMAGE = float(args.resize_image)
+
+	do_system(f"mkdir -p {args.images}_resized")
+
 	print(f"outputting to {OUT_PATH}...")
 	cameras = {}
 	with open(os.path.join(TEXT_FOLDER,"cameras.txt"), "r") as f:
@@ -271,9 +288,24 @@ if __name__ == "__main__":
 				camera["k2"] = float(els[9])
 				camera["k3"] = float(els[10])
 				camera["k4"] = float(els[11])
+			elif els[1] == "FULL_OPENCV":
+				camera["cx"] = float(els[6])
+				camera["cy"] = float(els[7])
+				camera["k1"] = float(els[8])
+				camera["k2"] = float(els[9])
+				camera["p1"] = float(els[10])
+				camera["p2"] = float(els[11])
 			else:
 				print("Unknown camera model ", els[1])
 			# fl = 0.5 * w / tan(0.5 * angle_x);
+			if RESIZE_IMAGE != 1.0:
+				camera["w"] = RESIZE_IMAGE * camera["w"]
+				camera["h"] = RESIZE_IMAGE * camera["h"]
+				camera["fl_x"] = RESIZE_IMAGE * camera["fl_x"]
+				camera["fl_y"] = RESIZE_IMAGE * camera["fl_y"]
+				camera["cx"] = RESIZE_IMAGE * camera["cx"]
+				camera["cy"] = RESIZE_IMAGE * camera["cy"]
+
 			camera["camera_angle_x"] = math.atan(camera["w"] / (camera["fl_x"] * 2)) * 2
 			camera["camera_angle_y"] = math.atan(camera["h"] / (camera["fl_y"] * 2)) * 2
 			camera["fovx"] = camera["camera_angle_x"] * 180 / math.pi
@@ -317,7 +349,12 @@ if __name__ == "__main__":
 			}
 
 		up = np.zeros(3)
+		image_cnt = 0
 		for line in f:
+			image_cnt = image_cnt + 1
+			if image_cnt % COLMAP_SUBSAMPLE != 0:
+				continue
+
 			line = line.strip()
 			if line[0] == "#":
 				continue
@@ -330,7 +367,10 @@ if __name__ == "__main__":
 				# why is this requireing a relitive path while using ^
 				image_rel = os.path.relpath(IMAGE_FOLDER)
 				name = str(f"./{image_rel}/{'_'.join(elems[9:])}")
-				b = sharpness(name)
+				name_new = str(f"./{image_rel}_resized/{'_'.join(elems[9:])}")
+				file_path = str(f"images_resized/{'_'.join(elems[9:])}")
+				resize_image(name, name_new, RESIZE_IMAGE)
+				b = sharpness(name_new)
 				print(name, "sharpness=",b)
 				image_id = int(elems[0])
 				qvec = np.array(tuple(map(float, elems[1:5])))
@@ -347,7 +387,7 @@ if __name__ == "__main__":
 
 					up += c2w[0:3,1]
 
-				frame = {"file_path":name,"sharpness":b,"transform_matrix": c2w}
+				frame = {"file_path_full":name_new, "file_path":file_path,"sharpness":b,"transform_matrix": c2w}
 				if len(cameras) != 1:
 					frame.update(cameras[int(elems[8])])
 				out["frames"].append(frame)
@@ -443,7 +483,7 @@ if __name__ == "__main__":
 		predictor = DefaultPredictor(cfg)
 
 		for frame in out["frames"]:
-			img = cv2.imread(frame["file_path"])
+			img = cv2.imread(frame["file_path_full"])
 			outputs = predictor(img)
 
 			output_mask = np.zeros((img.shape[0], img.shape[1]))
@@ -452,6 +492,6 @@ if __name__ == "__main__":
 					pred_mask = outputs["instances"][i].pred_masks.cpu().numpy()[0]
 					output_mask = np.logical_or(output_mask, pred_mask)
 
-			rgb_path = Path(frame["file_path"])
+			rgb_path = Path(frame["file_path_full"])
 			mask_name = str(rgb_path.parents[0] / Path("dynamic_mask_" + rgb_path.name.replace(".jpg", ".png")))
 			cv2.imwrite(mask_name, (output_mask*255).astype(np.uint8))

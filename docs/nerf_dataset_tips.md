@@ -46,7 +46,7 @@ You can set any of the following parameters, where the listed values are the def
 	"aabb_scale": 32,
 	"scale": 0.33,
 	"offset": [0.5, 0.5, 0.5],
-	...	
+	...
 }
 ```
 See [nerf_loader.cu](/src/nerf_loader.cu) for implementation details and additional options.
@@ -91,6 +91,18 @@ For all operating systems, after having installed Python, you need to install th
 pip install -r requirements.txt
 ```
 
+### DM
+
+```sh
+SESSION_FOLDER=./dm_data/VID_20230602_085920_00_011_office5
+SESSION_FOLDER=./dm_data/VID_20220530_133942_00_008_cxw
+python ./scripts/colmap2nerf.py  --colmap_subsample 5 --aabb_scale 4 --resize_image 0.5 \
+--text ${SESSION_FOLDER}/colmap/sparse --images ${SESSION_FOLDER}/colmap/images --out ${SESSION_FOLDER}/colmap/transforms.json
+```
+
+```sh
+./build/instant-ngp ${SESSION_FOLDER}/colmap/
+```
 
 ### COLMAP
 
@@ -113,7 +125,7 @@ For training from images, place them in a subfolder called `images` and then use
 data-folder$ python [path-to-instant-ngp]/scripts/colmap2nerf.py --colmap_matcher exhaustive --run_colmap --aabb_scale 32
 ```
 
-The script will run (and install, if you use Windows) FFmpeg and COLMAP as needed, followed by a conversion step to the required `transforms.json` format, which will be written in the current directory. 
+The script will run (and install, if you use Windows) FFmpeg and COLMAP as needed, followed by a conversion step to the required `transforms.json` format, which will be written in the current directory.
 
 By default, the script invokes colmap with the "sequential matcher", which is suitable for images taken from a smoothly changing camera path, as in a video. The exhaustive matcher is more appropriate if the images are in no particular order, as shown in the image example above.
 For more options, you can run the script with `--help`. For more advanced uses of COLMAP or for challenging scenes, please see the [COLMAP documentation](https://colmap.github.io/cli.html); you may need to modify the [scripts/colmap2nerf.py](/scripts/colmap2nerf.py) script itself.
@@ -133,12 +145,12 @@ instant-ngp$ ./instant-ngp [path to training data folder containing transforms.j
 
 ### Record3D
 
-With an >=iPhone 12 Pro, one can use [Record3D](https://record3d.app/) to collect data and avoid COLMAP. [Record3D](https://record3d.app/) is an iOS app that relies on ARKit to estimate each image's camera pose. It is more robust than COLMAP for scenes that lack textures or contain repetitive patterns. To train __instant-ngp__ with Record3D data, follow these steps: 
+With an >=iPhone 12 Pro, one can use [Record3D](https://record3d.app/) to collect data and avoid COLMAP. [Record3D](https://record3d.app/) is an iOS app that relies on ARKit to estimate each image's camera pose. It is more robust than COLMAP for scenes that lack textures or contain repetitive patterns. To train __instant-ngp__ with Record3D data, follow these steps:
 
 1. Record a video and export with the "Shareable/Internal format (.r3d)".
 2. Send the exported data to your computer.
 3. Replace the `.r3d` extension with `.zip` and unzip the file to get a directory `path/to/data`.
-4. Run the preprocessing script: 
+4. Run the preprocessing script:
 	```
 	instant-ngp$ python scripts/record3d2nerf.py --scene path/to/data
 	```
@@ -148,10 +160,10 @@ With an >=iPhone 12 Pro, one can use [Record3D](https://record3d.app/) to collec
 	```
 	instant-ngp$ ./instant-ngp path/to/data
 	```
-	
+
 ### NeRFCapture
 
-[NeRFCapture](https://github.com/jc211/NeRFCapture) is an iOS app - available on the [Apple App Store](https://apps.apple.com/au/app/nerfcapture/id6446518379) - that runs on any ARKit device. It allows you to stream images directly from your phone to __instant-ngp__ thus enabling a more interactive experience. It can also collect an offline dataset for later use. 
+[NeRFCapture](https://github.com/jc211/NeRFCapture) is an iOS app - available on the [Apple App Store](https://apps.apple.com/au/app/nerfcapture/id6446518379) - that runs on any ARKit device. It allows you to stream images directly from your phone to __instant-ngp__ thus enabling a more interactive experience. It can also collect an offline dataset for later use.
 
 The following dependencies are needed to run the NeRFCapture script:
 ```
@@ -165,7 +177,7 @@ To stream:
 	instant-ngp$ python scripts/nerfcapture2nerf.py --stream
 	```
 3. Wait for the connection between the app and the script to occur. This will be indicated on the app.
-4. Click the send button on the app. The frame captured will be sent to __instant-ngp__. 
+4. Click the send button on the app. The frame captured will be sent to __instant-ngp__.
 5. Toggle training
 
 To save a dataset:
