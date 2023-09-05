@@ -104,6 +104,8 @@ python ./scripts/colmap2nerf.py  --colmap_subsample 5 --aabb_scale 4 --resize_im
 ./build/instant-ngp ${SESSION_FOLDER}/colmap/
 ```
 
+<img src="assets/instant_ngp.jpg" width="100%"/>
+
 ### COLMAP
 
 If you use Linux, make sure that you have installed [COLMAP](https://colmap.github.io/) and that it is available in your PATH. If you are using a video file as input, also be sure to install [FFmpeg](https://www.ffmpeg.org/) and make sure that it is available in your PATH.
