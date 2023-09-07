@@ -62,7 +62,7 @@ python ./scripts/colmap2nerf.py  --colmap_subsample 5 --aabb_scale 4 --resize_im
 
 You can use __any__ NeRF-compatible dataset, e.g. from [original NeRF](https://drive.google.com/drive/folders/1JDdLGDruGNXWnM1eqY1FNL9PlStjaKWi), the [SILVR dataset](https://github.com/IDLabMedia/large-lightfields-dataset), or the [DroneDeploy dataset](https://github.com/nickponline/dd-nerf-dataset). **To create your own NeRF, watch [the video tutorial](https://www.youtube.com/watch?v=3TWxO1PftMc) or read the [written instructions](docs/nerf_dataset_tips.md).**
 
-### SDF armadillo
+### SDF outdoor
 
 Drag `data/sdf/armadillo.obj` into the window or use the command:
 
