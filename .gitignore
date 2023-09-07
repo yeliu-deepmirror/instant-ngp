@@ -19,3 +19,4 @@ __pycache__
 .DS_Store
 imgui.ini
 dm_data
+.instant-ngp_bash_history
