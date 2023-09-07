@@ -1,6 +1,8 @@
 # Instant Neural Graphics Primitives ![](https://github.com/NVlabs/instant-ngp/workflows/CI/badge.svg)
 
+<!--
 <img src="docs/assets_readme/fox.gif" height="342"/> <img src="docs/assets_readme/robot5.gif" height="342"/>
+-->
 
 Ever wanted to train a NeRF model of a fox in under 5 seconds? Or fly around a scene captured from photos of a factory robot? Of course you have!
 
@@ -17,20 +19,11 @@ For business inquiries, please submit the [NVIDIA research licensing form](https
 
 ## Installation
 
-If you have Windows, download one of the following releases corresponding to your graphics card and extract it. Then, start `instant-ngp.exe`.
-
-- [**RTX 3000 & 4000 series, RTX A4000&ndash;A6000**, and other Ampere & Ada cards](https://github.com/NVlabs/instant-ngp/releases/download/continuous/Instant-NGP-for-RTX-3000-and-4000.zip)
-- [**RTX 2000 series, Titan RTX, Quadro RTX 4000&ndash;8000**, and other Turing cards](https://github.com/NVlabs/instant-ngp/releases/download/continuous/Instant-NGP-for-RTX-2000.zip)
-- [**GTX 1000 series, Titan Xp, Quadro P1000&ndash;P6000**, and other Pascal cards](https://github.com/NVlabs/instant-ngp/releases/download/continuous/Instant-NGP-for-GTX-1000.zip)
-
-Keep reading for a guided tour of the application or, if you are interested in creating your own NeRF, watch [the video tutorial](https://www.youtube.com/watch?v=3TWxO1PftMc) or read the [written instructions](docs/nerf_dataset_tips.md).
-
-If you use Linux, or want the [developer Python bindings](https://github.com/NVlabs/instant-ngp#python-bindings), or if your GPU is not listed above (e.g. Hopper, Volta, or Maxwell generations), you need to [build __instant-ngp__ yourself](https://github.com/NVlabs/instant-ngp#building-instant-ngp-windows--linux).
-
+If you have Windows, download one of the following releases corresponding to your graphics card and extract it. Then, start `instant-ngp.exe`. see [original repo](https://github.com/NVlabs/instant-ngp) for installation.
 
 ## Usage
 
-<img src="docs/assets_readme/testbed.png" width="100%"/>
+<!-- <img src="docs/assets_readme/testbed.png" width="100%"/> -->
 
 __instant-ngp__ comes with an interactive GUI that includes many features:
 - [comprehensive controls](https://github.com/NVlabs/instant-ngp#keyboard-shortcuts-and-recommended-controls) for interactively exploring neural graphics primitives,
@@ -50,7 +43,22 @@ Simply start `instant-ngp` and drag the `data/nerf/fox` folder into the window. 
 instant-ngp$ ./instant-ngp data/nerf/fox
 ```
 
-<img src="docs/assets_readme/fox.png"/>
+Run with colmap
+
+```sh
+SESSION_FOLDER=./dm_data/VID_20230602_085920_00_011_office5
+SESSION_FOLDER=./dm_data/VID_20220530_133942_00_008_cxw
+python ./scripts/colmap2nerf.py  --colmap_subsample 5 --aabb_scale 4 --resize_image 0.5 \
+--text ${SESSION_FOLDER}/colmap/sparse --images ${SESSION_FOLDER}/colmap/images --out ${SESSION_FOLDER}/colmap/transforms.json
+```
+
+```sh
+./build/instant-ngp ${SESSION_FOLDER}/colmap/
+```
+
+<img src="docs/assets/instant_ngp.jpg" width="100%"/>
+
+<!-- <img src="docs/assets_readme/fox.png"/> -->
 
 You can use __any__ NeRF-compatible dataset, e.g. from [original NeRF](https://drive.google.com/drive/folders/1JDdLGDruGNXWnM1eqY1FNL9PlStjaKWi), the [SILVR dataset](https://github.com/IDLabMedia/large-lightfields-dataset), or the [DroneDeploy dataset](https://github.com/nickponline/dd-nerf-dataset). **To create your own NeRF, watch [the video tutorial](https://www.youtube.com/watch?v=3TWxO1PftMc) or read the [written instructions](docs/nerf_dataset_tips.md).**
 
@@ -64,7 +72,7 @@ instant-ngp$ ./instant-ngp data/sdf/armadillo.obj
 
 <img src="docs/assets_readme/armadillo.png"/>
 
-### Image of Einstein
+### GigaPixel of Einstein
 
 Drag `data/image/albert.exr` into the window or use the command:
 
@@ -231,6 +239,7 @@ Happy hacking!
 
 ## Frequently asked questions (FAQ)
 
+<!--
 __Q:__ The NeRF reconstruction of my custom dataset looks bad; what can I do?
 
 __A:__ There could be multiple issues:
@@ -264,7 +273,7 @@ __A:__ Yes. See [this example](./notebooks/instant_ngp.ipynb) inspired on the no
 ##
 __Q:__ Is there a [Docker container](https://www.docker.com/)?
 
-__A:__ Yes. We bundle a [Visual Studio Code development container](https://code.visualstudio.com/docs/remote/containers), the `.devcontainer/Dockerfile` of which you can also use stand-alone. 
+__A:__ Yes. We bundle a [Visual Studio Code development container](https://code.visualstudio.com/docs/remote/containers), the `.devcontainer/Dockerfile` of which you can also use stand-alone.
 
 If you want to run the container without using VSCode:
 ```
@@ -294,6 +303,8 @@ __Q:__ How to mask away NeRF training pixels (e.g. for dynamic object removal)?
 
 __A:__ For any training image `xyz.*` with dynamic objects, you can provide a `dynamic_mask_xyz.png` in the same folder. This file must be in PNG format, where _non-zero_ pixel values indicate masked-away regions.
 
+-->
+
 ## Troubleshooting compile errors
 
 Before investigating further, make sure all submodules are up-to-date and try compiling again.
@@ -306,6 +317,7 @@ If your problem persists, consult the following table of known issues.
 
 **\*After each step, delete the `build` folder and let CMake regenerate it before trying again.\***
 
+<!--
 | Problem | Resolution |
 |---------|------------|
 | __CMake error:__ No CUDA toolset found / CUDA_ARCHITECTURES is empty for target "cmTC_0c70f" | __Windows:__ the Visual Studio CUDA integration was not installed correctly. Follow [these instructions](https://github.com/mitsuba-renderer/mitsuba2/issues/103#issuecomment-618378963) to fix the problem without re-installing CUDA. ([#18](https://github.com/NVlabs/instant-ngp/issues/18)) |
@@ -317,6 +329,8 @@ If your problem persists, consult the following table of known issues.
 | __Python error:__ No module named 'pyngp' | It is likely that CMake did not detect your Python installation and therefore did not build `pyngp`. Check CMake logs to verify this. If `pyngp` was built in a different folder than `build`, Python will be unable to detect it and you have to supply the full path to the import statement. ([#43](https://github.com/NVlabs/instant-ngp/issues/43)) |
 
 If you cannot find your problem in the table, try searching [the discussions board](https://github.com/NVlabs/instant-ngp/discussions) and [the issues area](https://github.com/NVlabs/instant-ngp/issues?q=is%3Aissue) for help. If you are still stuck, please [open an issue](https://github.com/NVlabs/instant-ngp/issues/new) and ask for help.
+
+-->
 
 ## Thanks
 
@@ -360,4 +374,3 @@ Many thanks to the authors of these brilliant projects!
 Copyright © 2022, NVIDIA Corporation. All rights reserved.
 
 This work is made available under the Nvidia Source Code License-NC. Click [here](LICENSE.txt) to view a copy of this license.
-
