@@ -67,10 +67,13 @@ You can use __any__ NeRF-compatible dataset, e.g. from [original NeRF](https://d
 Drag `data/sdf/armadillo.obj` into the window or use the command:
 
 ```sh
-instant-ngp$ ./instant-ngp data/sdf/armadillo.obj
+./build/instant-ngp data/sdf/armadillo.obj
+./build/instant-ngp dm_data/20220823T175708+0800_xvnxa_xvnxa004_jmwdemo2/map_point_cloud_mesh.obj
 ```
 
-<img src="docs/assets_readme/armadillo.png"/>
+<img src="docs/assets/instant_ngp_sdf.jpg" width="100%"/>
+
+<!-- <img src="docs/assets_readme/armadillo.png"/> -->
 
 ### GigaPixel of Einstein
 
